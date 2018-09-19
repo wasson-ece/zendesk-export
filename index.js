@@ -60,6 +60,17 @@ function resetPrompt(init) {
 					console.error('Error: must pass a valid Ticket ID.\nExample: \'tickets 1\'');
 				}
 				break;
+			case 'orgs':
+				if (typeof(cmd[1]) != 'undefined' && parseInt(cmd[1]) > 0) {
+					getOrganization(cmd[1]);
+					console.log('Downloading organization '+cmd[1]+', this may take a few minutes. Feel free to issue other commands in the meantime, as this will continue in the background.');
+				} else if (typeof(cmd[1]) != 'undefined' && cmd[1] == 'all') {
+					console.log('Downloading all organizations, this may take a few minutes. Feel free to issue other commands in the meantime, as this will continue in the background.');
+					getOrganizations();
+				} else {
+					console.error('Error: must pass a valid Organization ID.\nExample: \'orgs 1\'');
+				}
+				break;
 			case 'read':
 				read(cmd[1], function(file) {
 					console.log(file);
@@ -71,6 +82,7 @@ function resetPrompt(init) {
 				if (result.command.toLowerCase().indexOf('help') != -1) { // Just check for non-case sensitive 'help' in the result string, as there is not command-specific help at the moment
 					console.log('users {id} - saves a specific User from Zendesk. To save all users, pass the string "all" instead of the User ID.');
 					console.log('tickets {id} - saves a specific Ticket from Zendesk, including comments, attachments, and recordings. To save all tickets, pass the string "all" as instead of the Ticket ID.');
+					console.log('orgs {id} - saves a specific Organization from Zendesk. To save all organizations, pass the string "all" as instead of the Organization ID.');
 				} else {
 					console.log(cmd[0]+' is not a valid command. Type \'h\' to see a list of available commands.');
 				}
@@ -213,6 +225,44 @@ function saveUser(user) {
 		if(!exists) {
 			mkdir(file, function() {
 				save(user, file); // Save the data to the file
+			});
+		}
+	});
+}
+
+/**
+ * Gets a specific organization from Zendesk and passes the organization to the saveOrganization function
+ * @param {integer} organizationId The ID of the organization to save
+ */
+function getOrganization(organizationId) {
+	client.organizations.show(organizationId, function (error, req, res) {
+		if (error) {console.log('Error getting organization '+organizationId+': '+error); return;}
+		saveOrganization(res);
+	});
+}
+
+/**
+ * Gets all organizations from Zendesk and passes each organization to the saveOrganization function
+ */
+function getOrganizations() {
+	client.organizations.list(function (error, req, res) {
+		if (error) {console.log('Error getting all users: '+error); return;}
+		for (var i = 0; i < res.length; i++) {
+			saveOrganization(res[i]);
+		}
+	});
+}
+
+/**
+ * Takes a organization object and saves it to a file with that organization's ID
+ * @param {Object} organization An organization object
+ */
+function saveOrganization(organization) {
+	var file = 'data/organizations/'+organization.id+'.json'; // Path for users JSON
+	check(file, function(exists) { // Check to see if directory exists
+		if(!exists) {
+			mkdir(file, function() {
+				save(organization, file); // Save the data to the file
 			});
 		}
 	});

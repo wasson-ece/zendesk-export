@@ -23,15 +23,17 @@ A `config.json` file must be created in the root directory of the app before run
 * `users 123` - saves user with ID 123
 * `tickets all` - saves all tickets
 * `tickets 123` - saves ticket with ID 123
+* `orgs all` - saves all organizations
+* `orgs 123` - saves organization with ID 123
 
-You can download Users and Tickets, either all at once or a specific ID. Each user is contained in a separate JSON file. Tickets are stored in a folder with their Comments, Attachments, and Voice Recordings.
+You can download Users, Tickets and Organizations, either all at once or a specific ID. Each user and organization is contained in a separate JSON file. Tickets are stored in a folder with their Comments, Attachments, and Voice Recordings.
 
 Regardless of method, data is exported as JSON files in the following structure and formats:
 
 ```
 data/
-    users/
-        {user.id}.json
+    organizations/
+        {organization.id}.json
     tickets/
         {ticket.id}/ticket.json
         {ticket.id}/
@@ -42,5 +44,7 @@ data/
                         {attachment.file_name}
                 recordings/
                     {recording.id}.mp3
+    users/
+        {user.id}.json
 
 ```
